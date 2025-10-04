@@ -301,7 +301,6 @@ class CoffeeOrderApp {
         // --- Gesture Logic ---
 
         // 1. Thumbs Down (Back Gesture)
-        // Thumb tip is below MCP, and other fingers are curled
         const thumbTip = landmarks[fingerTips.thumb];
         const thumbMcp = landmarks[fingerMcps.thumb];
         const indexMcp = landmarks[fingerMcps.index];
@@ -312,25 +311,25 @@ class CoffeeOrderApp {
         }
 
         // 2. Number Gestures (1-5)
-        // The index finger must be extended for any number selection
+        // The index finger must be extended for any number selection.
         if (extendedFingers.index) {
-            // Gesture for 5: all fingers extended
+            // Gesture for 5: all fingers are extended.
             if (extendedCount === 5) {
                 return { type: 'select', value: 5 };
             }
-            // Gestures for 1-4: thumb is not extended
+            // Gestures for 1-4: thumb must not be extended.
             if (!extendedFingers.thumb && nonThumbExtendedCount > 0) {
                 return { type: 'select', value: nonThumbExtendedCount };
             }
         }
 
         // 3. Neutral Gesture (Fist)
-        // No fingers are extended, or a gesture that doesn't match the rules above
+        // A fist (no fingers extended) is neutral.
         if (extendedCount === 0) {
             return { type: 'neutral', value: 0 };
         }
 
-        // Default to neutral if no specific gesture is recognized
+        // Any other combination is considered neutral to avoid incorrect selections.
         return { type: 'neutral', value: 0 };
     }
 
