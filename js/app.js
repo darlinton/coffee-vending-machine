@@ -255,66 +255,80 @@ class CoffeeOrderApp {
 
     // Detects gesture type (fingers, thumbs down, neutral)
     detectGesture(landmarks) {
-        const fingerTips = [8, 12, 16, 20]; // Index, middle, ring, pinky tips
-        const fingerPips = [6, 10, 14, 18]; // Index, middle, ring, pinky PIPs
-        const thumbTip = landmarks[4];
-        const thumbIp = landmarks[3]; // Intermediate Phalanx of thumb
-        const thumbMcp = landmarks[2]; // Metacarpophalangeal joint of thumb
-        const indexTip = landmarks[8];
-        const indexMcp = landmarks[5]; // Metacarpophalangeal joint of index finger
+        const fingerTips = {
+            thumb: 4,
+            index: 8,
+            middle: 12,
+            ring: 16,
+            pinky: 20
+        };
+        const fingerMcps = {
+            thumb: 2,
+            index: 5,
+            middle: 9,
+            ring: 13,
+            pinky: 17
+        };
+        const fingerPips = {
+            thumb: 3,
+            index: 6,
+            middle: 10,
+            ring: 14,
+            pinky: 18
+        };
 
-        let extendedFingers = 0;
-        let isThumbExtended = false;
-        let isThumbDown = false;
+        // Helper to check if a finger is extended
+        const isFingerExtended = (fingerName) => {
+            const tip = landmarks[fingerTips[fingerName]];
+            const pip = landmarks[fingerPips[fingerName]];
+            const mcp = landmarks[fingerMcps[fingerName]];
+            // A finger is extended if its tip is above its PIP and MCP joints
+            return tip.y < pip.y && tip.y < mcp.y;
+        };
 
-        // Check if thumb is extended (for "select" gestures)
-        // Thumb tip (4) is significantly above its MCP (2) or extended outwards
-        if (thumbTip.y < thumbMcp.y || Math.abs(thumbTip.x - thumbMcp.x) > 0.08) {
-            isThumbExtended = true;
-        }
+        // Check each finger's state
+        const extendedFingers = {
+            thumb: isFingerExtended('thumb'),
+            index: isFingerExtended('index'),
+            middle: isFingerExtended('middle'),
+            ring: isFingerExtended('ring'),
+            pinky: isFingerExtended('pinky')
+        };
 
-        // Check if thumb is pointing down (for "back" gesture)
-        // Thumb tip (4) is below its MCP (2) and below the index finger's MCP (5)
-        // Also, ensure the thumb is relatively straight down, not curled into the palm
-        if (thumbTip.y > thumbMcp.y && thumbTip.y > indexMcp.y + 0.05 && Math.abs(thumbTip.x - thumbMcp.x) < 0.05) {
-            isThumbDown = true;
-        }
-
-        // Check other fingers extension
-        let allOtherFingersCurled = true;
-        for (let i = 0; i < fingerTips.length; i++) {
-            // Finger is extended if tip is significantly higher than PIP
-            if (landmarks[fingerTips[i]].y < landmarks[fingerPips[i]].y) {
-                extendedFingers++;
-                allOtherFingersCurled = false;
-            }
-        }
+        const extendedCount = Object.values(extendedFingers).filter(Boolean).length;
+        const nonThumbExtendedCount = extendedCount - (extendedFingers.thumb ? 1 : 0);
 
         // --- Gesture Logic ---
-        // 1. Selection (1-5 fingers):
-        // If thumb is extended AND not pointing down, AND other fingers are not all curled, count it.
-        let totalExtendedFingers = extendedFingers;
-        if (isThumbExtended && !isThumbDown) {
-            // Only count thumb if it's not part of a "thumbs down" gesture
-            totalExtendedFingers++;
-        }
 
-        if (totalExtendedFingers > 0 && totalExtendedFingers <= 5) {
-            return { type: 'select', value: totalExtendedFingers };
-        }
+        // 1. Thumbs Down (Back Gesture)
+        // Thumb tip is below MCP, and other fingers are curled
+        const thumbTip = landmarks[fingerTips.thumb];
+        const thumbMcp = landmarks[fingerMcps.thumb];
+        const indexMcp = landmarks[fingerMcps.index];
+        const isThumbPointingDown = thumbTip.y > thumbMcp.y && thumbTip.y > indexMcp.y;
 
-        // 2. Thumbs Down (Back):
-        if (isThumbDown) {
+        if (isThumbPointingDown && nonThumbExtendedCount === 0) {
             return { type: 'back', value: 0 };
         }
 
-        // 3. Neutral (Closed Fist / No clear gesture):
-        // If all other fingers are curled AND the thumb is not extended for selection or pointing down.
-        if (allOtherFingersCurled && !isThumbExtended && !isThumbDown) {
+        // 2. Number Gestures (1-5)
+        // Special case for "1": only index finger is extended
+        if (extendedFingers.index && nonThumbExtendedCount === 1 && !extendedFingers.thumb) {
+            return { type: 'select', value: 1 };
+        }
+
+        // For numbers 2-5, the index finger must be extended
+        if (extendedFingers.index && extendedCount > 1) {
+            return { type: 'select', value: extendedCount };
+        }
+
+        // 3. Neutral Gesture (Fist)
+        // No fingers are extended
+        if (extendedCount === 0) {
             return { type: 'neutral', value: 0 };
         }
-        
-        // Default to neutral if no specific gesture is detected
+
+        // Default to neutral if no specific gesture is recognized
         return { type: 'neutral', value: 0 };
     }
 
