@@ -96,20 +96,6 @@ body {
 .step.active {
   background: var(--primary-color);
   color: white;
-  transform: scale(1.1);
-}
-
-.step.completed {
-  background: var(--success-color);
-  color: white;
-}
-
-/* ========== MAIN CONTENT AREA ========== */
-.main-content-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column; /* Stack camera and content */
-  align-items: center; /* Center items */
   position: relative;
   overflow: hidden; /* Ensure content doesn't spill out */
 }
@@ -199,8 +185,8 @@ body {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 0.8rem 1rem;
-  background: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+  padding: 0.5em 0.8rem;
+  background: rgba(255, 255, 255, 0.7); /* Slightly transparent white */
   border-radius: var(--border-radius);
   margin: 0 1rem 1rem 1rem; /* Space below camera section */
   box-shadow: var(--shadow);
@@ -225,9 +211,7 @@ body {
 .step-content {
   height: auto; /* Fixed height for options at the top */
   width: 100%; /* Take full width */
-  background: rgba(255, 255, 255, 0.3); /* Semi-transparent background */
-  backdrop-filter: blur(10px); /* Blur effect */
-  -webkit-backdrop-filter: blur(10px); /* For Safari */
+  background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
   z-index: 10; /* Ensure it's above the camera */
   padding: 1rem; /* Add padding for content */
   display: flex;
@@ -269,18 +253,12 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-  max-width: 500px;
+  max-width: 400px;
   margin: 0 auto;
 }
 
-@media (min-width: 480px) {
-  .options-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 .option {
-  background: rgba(255, 255, 255, 0.3); /* Slightly transparent background */
+  background: rgba(255, 255, 255, 0.2); /* Slightly transparent background */
   border-radius: var(--border-radius);
   padding: 1.5rem;
   text-align: center;
@@ -466,11 +444,13 @@ body {
 
 /* ========== DEBUG INFO ========== */
 .debug-info {
+  pointer-events: none;
   padding: 0.5rem 1rem;
   background: rgba(0, 0, 0, 0.05);
   text-align: center;
   font-size: 0.8rem;
   color: var(--text-secondary);
+  z-index: 10;
 }
 
 /* ========== ANIMATIONS ========== */
@@ -504,9 +484,13 @@ body {
 }
 
 /* ========== RESPONSIVE ========== */
-/* ========== RESPONSIVE ========== */
-@media (min-width: 769px) {
+@media (min-width: 601px) {
+
+  .options-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
   .main-content-area {
+    display: flex; /* Set flex display for side-by-side layout */
     flex-direction: row; /* Side-by-side on larger screens */
     align-items: flex-start;
   }
@@ -562,104 +546,78 @@ body {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
+
   .main-content-area {
-    flex-direction: column; /* Stack camera and steps */
-    align-items: center;
+    display: relative; /* Override flexbox for mobile */
   }
 
   .camera-section {
-    width: 100%;
-    order: 2; /* Camera below step content */
-    padding-bottom: 0;
-    margin-bottom: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1; /* Send to the very back */
   }
 
   .camera-container {
-    position: relative;
-    width: 100%;
-    padding-top: 56.25%; /* 16:9 Aspect Ratio */
-    height: 0;
-    margin-bottom: 0.5rem;
-    border-radius: var(--border-radius); /* Re-add border radius for smaller screens */
-  }
-
-  .camera-container video,
-  .camera-container canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    width: 98%;
+    height: 75%;
   }
 
   .camera-controls {
-    position: relative; /* Ensure controls are within the flow */
-    margin-top: 1rem; /* Space between camera and controls */
-    margin-bottom: 1rem; /* Space below controls */
-    z-index: 15;
+    position: fixed;   /* Fixo na tela, sempre visível e clicável */
+    bottom: 20px;      /* Posiciona na parte inferior */
+    left: 50%;
+    transform: translateX(-50%); /* Centraliza horizontalmente */
+    z-index: 15;        /* A camada mais alta de todas */
   }
 
   .step-content {
-    position: relative; /* Changed from absolute to relative */
-    top: auto;
-    left: auto;
-    right: auto;
-    height: auto;
-    max-height: none; /* Allow content to expand */
-    width: 100%;
-    background: rgba(255, 255, 255, 0.9); /* More opaque background */
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 10;
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    order: 1; /* Step content above camera */
-    margin-bottom: 1rem; /* Space below step content */
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.65);
+    padding-top: 30px;
+    padding-bottom: 100px;
+    min-height: 60vh;
   }
 
-  .gesture-instructions {
-    margin: 0 1rem 1rem 1rem; /* Consistent margin */
-    order: 3; /* Below camera controls */
-  }
-
-  /* Adjustments for smaller screens within the 768px breakpoint */
-  .app-header {
-    padding: 0.8rem;
-  }
-  
-  .logo h1 {
-    font-size: 1.2rem;
-  }
-  
-  .step {
-    width: 28px;
-    height: 28px;
-    font-size: 0.8rem;
-  }
-  
-  .step-panel h2 {
-    font-size: 1.5rem;
-  }
-  
-  .option {
-    padding: 1rem;
-  }
-  
-  .option i {
-    font-size: 2rem;
-  }
-  
-  .code {
-    font-size: 2.5rem;
-    letter-spacing: 4px;
-  }
-}
-
-@media (max-width: 480px) {
   .options-grid {
     grid-template-columns: 1fr; /* Single column for options on very small screens */
+  }
+
+  .option {
+    padding: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .option i {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .option h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .option p {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .option .price {
+    font-size: 1rem;
+  }
+
+  .option-number {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
   }
 }
 

@@ -25,22 +25,6 @@
             </div>
         </header>
 
-        <!-- Gesture Instructions -->
-        <div class="gesture-instructions">
-            <div class="instruction-item">
-                <i class="fas fa-fist-raised"></i>
-                <span>Pronto (Punho Fechado)</span>
-            </div>
-            <div class="instruction-item">
-                <i class="fas fa-hand-paper"></i>
-                <span>Selecionar (1-5 Dedos)</span>
-            </div>
-            <div class="instruction-item">
-                <i class="fas fa-thumbs-down"></i>
-                <span>Voltar (Polegar para Baixo)</span>
-            </div>
-        </div>
-
         <!-- Camera and Step Content Container -->
         <div class="main-content-area">
             <!-- Camera Section -->
@@ -48,7 +32,6 @@
                 <div class="camera-container">
                     <video id="videoElement" autoplay playsinline webkit-playsinline></video>
                     <canvas id="canvasElement"></canvas>
-                    <!-- Gesture overlay for detected gesture count -->
                     <div class="gesture-overlay">
                         <div class="gesture-indicator" id="gestureIndicator">
                             <i class="fas fa-hand-paper"></i>
@@ -64,11 +47,24 @@
                         <i class="fas fa-sync-alt"></i> Trocar Câmera
                     </button>
                 </div>
+                <div class="gesture-instructions">
+                    <div class="instruction-item">
+                        <i class="fas fa-fist-raised"></i>
+                        <span>Pronto (Punho Fechado)</span>
+                    </div>
+                    <div class="instruction-item">
+                        <i class="fas fa-hand-paper"></i>
+                        <span>Selecionar (1-5 Dedos)</span>
+                    </div>
+                    <div class="instruction-item">
+                        <i class="fas fa-thumbs-down"></i>
+                        <span>Voltar (Polegar para Baixo)</span>
+                    </div>
+              </div>
+
             </section>
 
-            <!-- Step Content -->
             <main class="step-content">
-                
                 <!-- Step 1: Tipo de Café -->
                 <div class="step-panel active" id="step0">
                     <h2>Escolha o Tipo de Café</h2>
