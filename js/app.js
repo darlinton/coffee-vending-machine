@@ -285,9 +285,16 @@ class CoffeeOrderApp {
 
             if (fingerName === 'thumb') {
                 const cmc = landmarks[1]; // The thumb's base joint
+                const mcp = landmarks[2]; // The thumb's middle knuckle
+                const tip = landmarks[4]; // The thumb's tip
+
                 const tipDist = Math.hypot(tip.x - cmc.x, tip.y - cmc.y);
                 const mcpDist = Math.hypot(mcp.x - cmc.x, mcp.y - cmc.y);
-                return tipDist > mcpDist * 1.2;
+
+                // LOG THE VALUES TO THE CONSOLE
+                console.log(`Thumb distances -- Tip: ${tipDist.toFixed(4)}, Knuckle: ${mcpDist.toFixed(4)}`);
+
+                return tipDist > mcpDist * 1.15;
             } else {
                 // For other fingers, check if the tip is above the pip and mcp
                 return tip.y < pip.y && tip.y < mcp.y;
