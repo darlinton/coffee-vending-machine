@@ -296,8 +296,8 @@ class CoffeeOrderApp {
                 // Distance from the thumb knuckle to the palm (index finger base)
                 const mcpToPalmDist = Math.hypot(mcp.x - indexFingerMcp.x, mcp.y - indexFingerMcp.y);
 
-                                // LOG THE VALUES TO THE CONSOLE
-                console.log(`Thumb distances -- tipToPalmDist: ${tipToPalmDist}, mcpToPalmDist: ${mcpToPalmDist}`);
+                // LOG THE VALUES TO THE CONSOLE
+                //console.log(`Thumb distances -- tipToPalmDist: ${tipToPalmDist}, mcpToPalmDist: ${mcpToPalmDist}`);
 
                 // If the tip is farther from the palm than the knuckle, the thumb is extended.
                 return tipToPalmDist > mcpToPalmDist;
