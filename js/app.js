@@ -282,8 +282,17 @@ class CoffeeOrderApp {
             const tip = landmarks[fingerTips[fingerName]];
             const pip = landmarks[fingerPips[fingerName]];
             const mcp = landmarks[fingerMcps[fingerName]];
-            // A finger is extended if its tip is above its PIP and MCP joints
-            return tip.y < pip.y && tip.y < mcp.y;
+
+            if (fingerName === 'thumb') {
+                // For the thumb, check if the tip is further from the wrist than the pip
+                const wrist = landmarks[0];
+                const tipDist = Math.sqrt(Math.pow(tip.x - wrist.x, 2) + Math.pow(tip.y - wrist.y, 2));
+                const pipDist = Math.sqrt(Math.pow(pip.x - wrist.x, 2) + Math.pow(pip.y - wrist.y, 2));
+                return tipDist > pipDist;
+            } else {
+                // For other fingers, check if the tip is above the pip and mcp
+                return tip.y < pip.y && tip.y < mcp.y;
+            }
         };
 
         // Check each finger's state
@@ -318,7 +327,7 @@ class CoffeeOrderApp {
                 return { type: 'select', value: 5 };
             }
             // Gestures for 1-4: thumb must not be extended.
-            if (!extendedFingers.thumb && nonThumbExtendedCount > 0) {
+            if (!extendedFingers.thumb && nonThumbExtendedCount > 0 && nonThumbExtendedCount <= 4) {
                 return { type: 'select', value: nonThumbExtendedCount };
             }
         }
