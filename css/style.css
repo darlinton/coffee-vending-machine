@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 /* ========== VARIABLES ========== */
 :root {
   --primary-color: #8B4513;
@@ -77,20 +79,6 @@ body {
   gap: 0.5rem;
 }
 
-.step {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--secondary-color);
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: var(--transition);
-}
-
 .step.active {
   background: var(--primary-color);
   color: white;
@@ -102,34 +90,39 @@ body {
   color: white;
 }
 
-/* ========== MAIN CONTENT AREA (for overlay) ========== */
+/* ========== MAIN CONTENT AREA ========== */
 .main-content-area {
   flex: 1;
   display: flex;
-  flex-direction: column; /* Default to column for smaller screens */
+  flex-direction: column; /* Stack camera and content */
+  align-items: center; /* Center items */
   position: relative;
   overflow: hidden; /* Ensure content doesn't spill out */
 }
 
 /* ========== CAMERA SECTION ========== */
 .camera-section {
-  padding: 1rem;
-  background: var(--surface);
-  margin: 1rem;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-  flex-shrink: 0; /* Prevent camera section from shrinking */
-  z-index: 10; /* Ensure camera is behind step content */
+  flex: 1; /* Allow camera section to grow and take remaining space */
+  z-index: 5; /* Ensure camera is behind step content */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Align controls to the bottom */
+  align-items: center;
+  order: 2; /* Place camera section below step-content */
+  background: #000; /* Black background for camera */
+  width: 100%; /* Ensure it takes full width on larger screens too */
 }
 
 .camera-container {
-  position: relative;
+  position: absolute; /* Camera container takes full space */
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 280px;
-  border-radius: var(--border-radius);
+  height: 100%;
+  border-radius: 0; /* Remove border radius */
   overflow: hidden;
   background: #000;
-  margin-bottom: 1rem;
+  margin-bottom: 0; /* Remove margin */
 }
 
 #videoElement {
@@ -184,6 +177,7 @@ body {
   display: flex;
   gap: 1rem;
   justify-content: center;
+  z-index: 15; /* Ensure controls are above overlays */
 }
 
 /* ========== GESTURE INSTRUCTIONS ========== */
@@ -215,21 +209,20 @@ body {
 
 /* ========== STEP CONTENT (OVERLAY) ========== */
 .step-content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.95); /* Semi-transparent background for readability */
-  backdrop-filter: blur(5px); /* Optional: adds a blur effect */
-  -webkit-backdrop-filter: blur(5px); /* For Safari */
-  z-index: 20; /* Ensure it's above the camera */
+  height: auto; /* Fixed height for options at the top */
+  width: 100%; /* Take full width */
+  background: rgba(255, 255, 255, 0.3); /* Semi-transparent background */
+  backdrop-filter: blur(10px); /* Blur effect */
+  -webkit-backdrop-filter: blur(10px); /* For Safari */
+  z-index: 10; /* Ensure it's above the camera */
   padding: 1rem; /* Add padding for content */
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Center content vertically */
+  justify-content: flex-start; /* Align content to the top */
   align-items: center; /* Center content horizontally */
   overflow-y: auto; /* Allow scrolling if content exceeds height */
+  order: 1; /* Place step-content above camera-section */
+  flex-shrink: 0; /* Prevent shrinking on smaller screens */
 }
 
 .step-panel {
@@ -273,7 +266,7 @@ body {
 }
 
 .option {
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.3); /* Slightly transparent background */
   border-radius: var(--border-radius);
   padding: 1.5rem;
   text-align: center;
@@ -497,36 +490,127 @@ body {
 }
 
 /* ========== RESPONSIVE ========== */
-@media (max-width: 768px) { /* Adjusted breakpoint for better tablet/large phone layout */
+/* ========== RESPONSIVE ========== */
+@media (min-width: 769px) {
   .main-content-area {
-    flex-direction: column; /* Stack camera and steps */
+    flex-direction: row; /* Side-by-side on larger screens */
+    align-items: flex-start;
   }
 
   .camera-section {
-    margin-bottom: 0; /* Remove bottom margin when stacked */
+    flex: 1;
+    order: 1;
     padding-bottom: 0;
+    margin-bottom: 0;
+    min-width: 50%; /* Ensure camera takes at least half the width */
   }
 
   .camera-container {
-    margin-bottom: 0.5rem; /* Smaller margin when stacked */
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    margin-bottom: 0;
+  }
+
+  .camera-container video,
+  .camera-container canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
   }
 
   .step-content {
-    position: static; /* Remove absolute positioning when stacked */
-    height: auto; /* Allow height to adjust */
-    background: var(--surface); /* Solid background when stacked */
-    backdrop-filter: none; /* Remove blur */
-    padding: 1rem;
-    box-shadow: var(--shadow); /* Add shadow for separation */
-    margin: 0 1rem 1rem 1rem; /* Add margin below step content */
+    flex: 1;
+    order: 2;
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    height: auto;
+    max-height: none;
+    background: var(--surface); /* Solid background on larger screens */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-left: 1rem; /* Space between camera and content */
+    min-width: 400px; /* Ensure content area has a minimum width */
   }
 
   .gesture-instructions {
-    margin-top: 0.5rem; /* Space above instructions when stacked */
+    margin-top: 0;
+    margin-left: 1rem;
+    margin-right: 1rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .main-content-area {
+    flex-direction: column; /* Stack camera and steps */
+    align-items: center;
+  }
+
+  .camera-section {
+    width: 100%;
+    order: 2; /* Camera below step content */
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+
+  .camera-container {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    margin-bottom: 0.5rem;
+    border-radius: var(--border-radius); /* Re-add border radius for smaller screens */
+  }
+
+  .camera-container video,
+  .camera-container canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .camera-controls {
+    position: relative; /* Ensure controls are within the flow */
+    margin-top: 1rem; /* Space between camera and controls */
+    margin-bottom: 1rem; /* Space below controls */
+    z-index: 15;
+  }
+
+  .step-content {
+    position: relative; /* Changed from absolute to relative */
+    top: auto;
+    left: auto;
+    right: auto;
+    height: auto;
+    max-height: none; /* Allow content to expand */
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9); /* More opaque background */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    order: 1; /* Step content above camera */
+    margin-bottom: 1rem; /* Space below step content */
+  }
+
+  .gesture-instructions {
+    margin: 0 1rem 1rem 1rem; /* Consistent margin */
+    order: 3; /* Below camera controls */
+  }
+
+  /* Adjustments for smaller screens within the 768px breakpoint */
   .app-header {
     padding: 0.8rem;
   }
@@ -539,10 +623,6 @@ body {
     width: 28px;
     height: 28px;
     font-size: 0.8rem;
-  }
-  
-  .camera-container {
-    height: 240px;
   }
   
   .step-panel h2 {
@@ -563,27 +643,13 @@ body {
   }
 }
 
-@media (max-width: 360px) {
-  .step-indicator {
-    gap: 0.3rem;
-  }
-  
-  .step {
-    width: 24px;
-    height: 24px;
-    font-size: 0.7rem;
-  }
-  
-  .logo h1 {
-    font-size: 1rem;
-  }
-  
+@media (max-width: 480px) {
   .options-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Single column for options on very small screens */
   }
 }
 
-/* ========== ACCESSIBILITY ========== */
+/* ACCESSIBILITY - Moved to the end for better organization */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

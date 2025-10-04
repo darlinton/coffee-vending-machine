@@ -121,10 +121,18 @@ class CoffeeOrderApp {
     async initCamera() {
         try {
             this.updateDebugStatus('Solicitando acesso à câmera...');
+            console.log('initCamera: Attempting to get video elements.');
             
             this.videoElement = document.getElementById('videoElement');
             this.canvasElement = document.getElementById('canvasElement');
             this.canvasCtx = this.canvasElement.getContext('2d');
+
+            if (!this.videoElement || !this.canvasElement) {
+                console.error('initCamera: Video or canvas element not found.');
+                this.updateDebugStatus('Erro: Elementos de vídeo/canvas não encontrados.');
+                return;
+            }
+            console.log('initCamera: Video and canvas elements found.');
 
             // Initialize MediaPipe Hands
             this.hands = new Hands({
@@ -141,8 +149,10 @@ class CoffeeOrderApp {
             });
 
             this.hands.onResults((results) => this.onHandsResults(results));
+            console.log('initCamera: MediaPipe Hands initialized.');
 
             // Get camera stream
+            console.log('initCamera: Requesting camera stream...');
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: 'user',
@@ -150,9 +160,11 @@ class CoffeeOrderApp {
                     height: { ideal: 480 }
                 }
             });
+            console.log('initCamera: Camera stream obtained.', stream);
 
             this.videoElement.srcObject = stream;
             this.videoElement.onloadedmetadata = () => {
+                console.log('initCamera: Video metadata loaded. Playing video.');
                 this.videoElement.play();
                 this.startGestureDetection();
                 document.getElementById('startCameraBtn').style.display = 'none';
@@ -161,9 +173,9 @@ class CoffeeOrderApp {
             };
 
         } catch (error) {
-            console.error('Erro ao acessar câmera:', error);
+            console.error('initCamera: Erro ao acessar câmera:', error);
             this.updateDebugStatus('Erro: Não foi possível acessar a câmera');
-            alert('Não foi possível acessar a câmera. Verifique as permissões do navegador.');
+            alert('Não foi possível acessar a câmera. Verifique as permissões do navegador ou se há uma câmera disponível.');
         }
     }
 
