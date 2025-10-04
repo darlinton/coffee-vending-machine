@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☕ Café Inteligente - Pedido por Gestos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fas fa-coffee"></i>
+                <h1>Café Inteligente</h1>
+            </div>
+            <div class="step-indicator">
+                <span class="step active" data-step="0">1</span>
+                <span class="step" data-step="1">2</span>
+                <span class="step" data-step="2">3</span>
+                <span class="step" data-step="3">4</span>
+                <span class="step" data-step="4">5</span>
+            </div>
+        </header>
+
+        <!-- Camera Section -->
+        <section class="camera-section">
+            <div class="camera-container">
+                <video id="videoElement" autoplay playsinline webkit-playsinline></video>
+                <canvas id="canvasElement"></canvas>
+                <div class="gesture-overlay">
+                    <div class="gesture-indicator" id="gestureIndicator">
+                        <i class="fas fa-hand-paper"></i>
+                        <span id="gestureCount">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="camera-controls">
+                <button id="startCameraBtn" class="btn btn-primary">
+                    <i class="fas fa-camera"></i> Ativar Câmera
+                </button>
+                <button id="toggleCameraBtn" class="btn btn-secondary" style="display: none;">
+                    <i class="fas fa-sync-alt"></i> Trocar Câmera
+                </button>
+            </div>
+        </section>
+
+        <!-- Step Content -->
+        <main class="step-content">
+            
+            <!-- Step 1: Tipo de Café -->
+            <div class="step-panel active" id="step0">
+                <h2>Escolha o Tipo de Café</h2>
+                <p class="instruction">Mostre de 1 a 5 dedos para selecionar:</p>
+                <div class="options-grid">
+                    <div class="option" data-value="1">
+                        <div class="option-number">1</div>
+                        <i class="fas fa-coffee"></i>
+                        <h3>Espresso</h3>
+                        <p>Café puro e forte</p>
+                        <span class="price">R$ 4,50</span>
+                    </div>
+                    <div class="option" data-value="2">
+                        <div class="option-number">2</div>
+                        <i class="fas fa-mug-hot"></i>
+                        <h3>Americano</h3>
+                        <p>Espresso com água quente</p>
+                        <span class="price">R$ 5,00</span>
+                    </div>
+                    <div class="option" data-value="3">
+                        <div class="option-number">3</div>
+                        <i class="fas fa-glass-whiskey"></i>
+                        <h3>Latte</h3>
+                        <p>Café com leite vaporizado</p>
+                        <span class="price">R$ 7,50</span>
+                    </div>
+                    <div class="option" data-value="4">
+                        <div class="option-number">4</div>
+                        <i class="fas fa-wine-glass-alt"></i>
+                        <h3>Cappuccino</h3>
+                        <p>Café, leite e espuma</p>
+                        <span class="price">R$ 8,00</span>
+                    </div>
+                    <div class="option" data-value="5">
+                        <div class="option-number">5</div>
+                        <i class="fas fa-snowflake"></i>
+                        <h3>Frappé</h3>
+                        <p>Café gelado batido</p>
+                        <span class="price">R$ 9,50</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Tamanho -->
+            <div class="step-panel" id="step1">
+                <h2>Escolha o Tamanho</h2>
+                <p class="instruction">Mostre de 1 a 5 dedos para selecionar:</p>
+                <div class="options-grid">
+                    <div class="option" data-value="1">
+                        <div class="option-number">1</div>
+                        <i class="fas fa-coffee"></i>
+                        <h3>Pequeno</h3>
+                        <p>150ml</p>
+                        <span class="price">Padrão</span>
+                    </div>
+                    <div class="option" data-value="2">
+                        <div class="option-number">2</div>
+                        <i class="fas fa-mug-hot"></i>
+                        <h3>Médio</h3>
+                        <p>250ml</p>
+                        <span class="price">+R$ 1,50</span>
+                    </div>
+                    <div class="option" data-value="3">
+                        <div class="option-number">3</div>
+                        <i class="fas fa-glass-whiskey"></i>
+                        <h3>Grande</h3>
+                        <p>350ml</p>
+                        <span class="price">+R$ 3,00</span>
+                    </div>
+                    <div class="option" data-value="4">
+                        <div class="option-number">4</div>
+                        <i class="fas fa-wine-bottle"></i>
+                        <h3>Extra Grande</h3>
+                        <p>500ml</p>
+                        <span class="price">+R$ 4,50</span>
+                    </div>
+                    <div class="option" data-value="5">
+                        <div class="option-number">5</div>
+                        <i class="fas fa-wine-glass-alt"></i>
+                        <h3>Família</h3>
+                        <p>700ml</p>
+                        <span class="price">+R$ 6,00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Personalização -->
+            <div class="step-panel" id="step2">
+                <h2>Personalização</h2>
+                <p class="instruction">Mostre de 1 a 5 dedos para selecionar:</p>
+                <div class="options-grid" id="customizationOptions">
+                    <!-- Options will be dynamically populated based on coffee type -->
+                </div>
+            </div>
+
+            <!-- Step 4: Meio de Pagamento -->
+            <div class="step-panel" id="step3">
+                <h2>Meio de Pagamento</h2>
+                <p class="instruction">Mostre de 1 a 5 dedos para selecionar:</p>
+                <div class="options-grid">
+                    <div class="option" data-value="1">
+                        <div class="option-number">1</div>
+                        <i class="fas fa-credit-card"></i>
+                        <h3>Cartão de Crédito</h3>
+                        <p>Débito ou crédito</p>
+                    </div>
+                    <div class="option" data-value="2">
+                        <div class="option-number">2</div>
+                        <i class="fas fa-qrcode"></i>
+                        <h3>PIX</h3>
+                        <p>Pagamento instantâneo</p>
+                    </div>
+                    <div class="option" data-value="3">
+                        <div class="option-number">3</div>
+                        <i class="fas fa-money-bill-wave"></i>
+                        <h3>Dinheiro</h3>
+                        <p>Pagamento em espécie</p>
+                    </div>
+                    <div class="option" data-value="4">
+                        <div class="option-number">4</div>
+                        <i class="fab fa-google-pay"></i>
+                        <h3>Google Pay</h3>
+                        <p>Pagamento digital</p>
+                    </div>
+                    <div class="option" data-value="5">
+                        <div class="option-number">5</div>
+                        <i class="fab fa-apple-pay"></i>
+                        <h3>Apple Pay</h3>
+                        <p>Pagamento via iPhone</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Confirmação e Senha -->
+            <div class="step-panel" id="step4">
+                <div class="confirmation-container">
+                    <div class="order-summary">
+                        <h2>Resumo do Pedido</h2>
+                        <div id="orderDetails"></div>
+                        <div class="total-price">
+                            <strong>Total: <span id="totalPrice">R$ 0,00</span></strong>
+                        </div>
+                    </div>
+                    
+                    <div class="processing" id="processingOrder">
+                        <div class="spinner"></div>
+                        <p>Processando seu pedido...</p>
+                    </div>
+
+                    <div class="order-complete" id="orderComplete" style="display: none;">
+                        <div class="success-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h2>Pedido Confirmado!</h2>
+                        <div class="pickup-code">
+                            <h3>Código para Retirada:</h3>
+                            <div class="code" id="pickupCode">A1B2</div>
+                        </div>
+                        <p class="pickup-info">
+                            Aguarde seu pedido ficar pronto e apresente este código no balcão.
+                            <br>Tempo estimado: <strong>8-12 minutos</strong>
+                        </p>
+                        <button class="btn btn-primary" onclick="resetApp()">
+                            <i class="fas fa-redo"></i> Fazer Novo Pedido
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <!-- Debug Info -->
+        <div class="debug-info" id="debugInfo">
+            <small>Status: <span id="debugStatus">Aguardando câmera...</span></small>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
