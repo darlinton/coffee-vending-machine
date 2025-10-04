@@ -285,9 +285,12 @@ class CoffeeOrderApp {
 
             if (fingerName === 'thumb') {
                 // For the thumb, check if the tip is further from the wrist than the pip
-                const wrist = landmarks[0];
-                const tipDist = Math.sqrt(Math.pow(tip.x - wrist.x, 2) + Math.pow(tip.y - wrist.y, 2));
-                const pipDist = Math.sqrt(Math.pow(pip.x - wrist.x, 2) + Math.pow(pip.y - wrist.y, 2));
+                const cmc = landmarks[1]; // The thumb's base joint
+                const mcp = landmarks[2]; // The thumb's middle knuckle
+                
+                // Calculate distance using the cleaner Math.hypot() function
+                const tipDist = Math.hypot(tip.x - cmc.x, tip.y - cmc.y);
+                const mcpDist = Math.hypot(mcp.x - cmc.x, mcp.y - cmc.y);
                 return tipDist > pipDist;
             } else {
                 // For other fingers, check if the tip is above the pip and mcp
