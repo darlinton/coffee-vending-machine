@@ -102,6 +102,15 @@ body {
   color: white;
 }
 
+/* ========== MAIN CONTENT AREA (for overlay) ========== */
+.main-content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column; /* Default to column for smaller screens */
+  position: relative;
+  overflow: hidden; /* Ensure content doesn't spill out */
+}
+
 /* ========== CAMERA SECTION ========== */
 .camera-section {
   padding: 1rem;
@@ -109,6 +118,8 @@ body {
   margin: 1rem;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
+  flex-shrink: 0; /* Prevent camera section from shrinking */
+  z-index: 10; /* Ensure camera is behind step content */
 }
 
 .camera-container {
@@ -148,6 +159,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  z-index: 20; /* Ensure overlay is above canvas */
 }
 
 .gesture-indicator {
@@ -174,53 +186,57 @@ body {
   justify-content: center;
 }
 
-/* ========== BUTTONS ========== */
-.btn {
-  padding: 0.8rem 1.5rem;
-  border: none;
+/* ========== GESTURE INSTRUCTIONS ========== */
+.gesture-instructions {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
   border-radius: var(--border-radius);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
+  margin: 0 1rem 1rem 1rem; /* Space below camera section */
+  box-shadow: var(--shadow);
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 1rem;
+}
+
+.instruction-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  text-decoration: none;
-  justify-content: center;
-  min-height: 48px;
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  color: white;
-}
-
-.btn-primary:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
-}
-
-.btn-secondary {
-  background: var(--secondary-color);
   color: var(--text-primary);
+  font-size: 0.9rem;
 }
 
-.btn-secondary:hover {
-  background: var(--accent-color);
-  transform: translateY(-2px);
+.instruction-item i {
+  color: var(--primary-color);
+  font-size: 1.2rem;
 }
 
-/* ========== STEP CONTENT ========== */
+/* ========== STEP CONTENT (OVERLAY) ========== */
 .step-content {
-  flex: 1;
-  padding: 1rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95); /* Semi-transparent background for readability */
+  backdrop-filter: blur(5px); /* Optional: adds a blur effect */
+  -webkit-backdrop-filter: blur(5px); /* For Safari */
+  z-index: 20; /* Ensure it's above the camera */
+  padding: 1rem; /* Add padding for content */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  overflow-y: auto; /* Allow scrolling if content exceeds height */
 }
 
 .step-panel {
   display: none;
   animation: fadeIn 0.5s ease-out;
+  width: 100%; /* Ensure panels take full width */
+  max-width: 500px; /* Limit width for readability */
 }
 
 .step-panel.active {
@@ -481,6 +497,35 @@ body {
 }
 
 /* ========== RESPONSIVE ========== */
+@media (max-width: 768px) { /* Adjusted breakpoint for better tablet/large phone layout */
+  .main-content-area {
+    flex-direction: column; /* Stack camera and steps */
+  }
+
+  .camera-section {
+    margin-bottom: 0; /* Remove bottom margin when stacked */
+    padding-bottom: 0;
+  }
+
+  .camera-container {
+    margin-bottom: 0.5rem; /* Smaller margin when stacked */
+  }
+
+  .step-content {
+    position: static; /* Remove absolute positioning when stacked */
+    height: auto; /* Allow height to adjust */
+    background: var(--surface); /* Solid background when stacked */
+    backdrop-filter: none; /* Remove blur */
+    padding: 1rem;
+    box-shadow: var(--shadow); /* Add shadow for separation */
+    margin: 0 1rem 1rem 1rem; /* Add margin below step content */
+  }
+
+  .gesture-instructions {
+    margin-top: 0.5rem; /* Space above instructions when stacked */
+  }
+}
+
 @media (max-width: 480px) {
   .app-header {
     padding: 0.8rem;

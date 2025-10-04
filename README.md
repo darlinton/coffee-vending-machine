@@ -6,6 +6,9 @@ Uma aplicação web inovadora que permite fazer pedidos de café usando **gestos
 
 ### ✅ Recursos Principais
 - **Detecção de Gestos em Tempo Real** usando MediaPipe Hands
+- **Interface Otimizada** com opções sobrepostas à câmera para melhor visibilidade
+- **Instruções de Gestos Claras** para guiar o usuário (Punho Fechado, 1-5 Dedos, Polegar para Baixo)
+- **Navegação por Gestos Aprimorada** incluindo "Polegar para Baixo" para voltar
 - **Interface Responsiva** otimizada para smartphones
 - **Fluxo de Pedido Intuitivo** em 5 etapas simples
 - **Sistema de Códigos de Retirada** com 4 caracteres alfanuméricos
@@ -102,7 +105,10 @@ Uma aplicação web inovadora que permite fazer pedidos de café usando **gestos
 1. **Acesse a aplicação** no smartphone
 2. **Permita acesso à câmera** quando solicitado
 3. **Posicione a mão** em frente à câmera
-4. **Faça gestos de 1-5 dedos** para navegar pelas opções
+4. **Siga as instruções de gestos na tela:**
+   - **Punho Fechado (✊):** Posição neutra para iniciar.
+   - **1-5 Dedos (✋):** Selecione as opções.
+   - **Polegar para Baixo (👎):** Volte para a etapa anterior.
 5. **Aguarde a confirmação visual** de cada seleção
 6. **Anote o código de retirada** ao final
 7. **Apresente o código** no balcão quando pronto

@@ -15,7 +15,8 @@ class CoffeeOrderApp {
         this.lastGestureTime = 0;
         this.gestureTimeout = null;
         this.stableGestureCount = 0;
-        this.currentDetectedFingers = 0;
+        this.currentDetectedGesture = 'neutral'; // 'select', 'back', 'neutral'
+        this.currentGestureValue = 0; // Number of fingers for 'select', or specific code for 'back'
         
         // MediaPipe Hands
         this.hands = null;
@@ -195,12 +196,12 @@ class CoffeeOrderApp {
             // Draw hand landmarks
             this.drawHandLandmarks(landmarks);
             
-            // Count extended fingers
-            const fingerCount = this.countExtendedFingers(landmarks);
-            this.processGesture(fingerCount);
+            // Detect gesture type
+            const gesture = this.detectGesture(landmarks);
+            this.processGesture(gesture);
         } else {
-            this.currentDetectedFingers = 0;
-            this.updateGestureDisplay(0);
+            // No hand detected, reset to neutral
+            this.processGesture({ type: 'neutral', value: 0 });
         }
     }
 
@@ -240,60 +241,108 @@ class CoffeeOrderApp {
         });
     }
 
-    countExtendedFingers(landmarks) {
-        let count = 0;
-        
-        // Thumb (check x-coordinate relative to hand)
-        if (landmarks[4].x > landmarks[3].x) {
-            count++;
+    // Detects gesture type (fingers, thumbs down, neutral)
+    detectGesture(landmarks) {
+        const fingerTips = [8, 12, 16, 20]; // Index, middle, ring, pinky tips
+        const fingerPips = [6, 10, 14, 18]; // Index, middle, ring, pinky PIPs
+        const thumbTip = landmarks[4];
+        const thumbIp = landmarks[3]; // Intermediate Phalanx of thumb
+        const thumbMcp = landmarks[2]; // Metacarpophalangeal joint of thumb
+        const indexTip = landmarks[8];
+        const indexMcp = landmarks[5]; // Metacarpophalangeal joint of index finger
+
+        let extendedFingers = 0;
+        let isThumbExtended = false;
+        let isThumbCurled = false;
+
+        // Check if thumb is extended (pointing up/out)
+        // A simple check: if thumb tip is significantly higher than its MCP joint
+        if (thumbTip.y < thumbMcp.y && Math.abs(thumbTip.x - thumbMcp.x) > 0.05) { // Check horizontal spread too
+            isThumbExtended = true;
         }
-        
-        // Other fingers (check y-coordinate)
-        const fingerTips = [8, 12, 16, 20]; // Index, middle, ring, pinky
-        const fingerPips = [6, 10, 14, 18];
-        
+        // Check if thumb is curled (pointing down/in)
+        // If thumb tip is significantly lower than its MCP joint
+        if (thumbTip.y > thumbMcp.y && Math.abs(thumbTip.x - thumbMcp.x) < 0.05) { // Check horizontal closeness
+            isThumbCurled = true;
+        }
+
+
+        // Check other fingers extension
+        let allOtherFingersExtended = true;
+        let allOtherFingersCurled = true;
         for (let i = 0; i < fingerTips.length; i++) {
+            // Finger is extended if tip is significantly higher than PIP
             if (landmarks[fingerTips[i]].y < landmarks[fingerPips[i]].y) {
-                count++;
+                extendedFingers++;
+                allOtherFingersCurled = false;
+            } else {
+                allOtherFingersExtended = false;
             }
         }
-        
-        return Math.min(count, 5); // Max 5 fingers
+
+        // --- Gesture Logic ---
+        // 1. Selection (1-5 fingers): Thumb is not curled, and 1-5 fingers are extended.
+        if (!isThumbCurled && extendedFingers > 0 && extendedFingers <= 5) {
+            return { type: 'select', value: extendedFingers };
+        }
+        // 2. Thumbs Down (Back): Thumb is curled, other fingers are curled, and thumb tip is below index MCP.
+        // This is a more robust check for a "thumbs down" gesture.
+        // The thumb tip (4) should be below the index finger's MCP joint (5)
+        // And the other fingers should be curled.
+        if (thumbTip.y > indexMcp.y && allOtherFingersCurled && isThumbCurled) {
+            return { type: 'back', value: 0 };
+        }
+        // 3. Neutral (Closed Fist / No clear gesture): All other cases.
+        // This includes a closed fist (all fingers curled, thumb curled) or no clear gesture.
+        return { type: 'neutral', value: 0 };
     }
 
-    processGesture(fingerCount) {
+    processGesture(gesture) {
         const now = Date.now();
         
-        if (fingerCount === this.currentDetectedFingers) {
+        // Update stable gesture count
+        if (gesture.type === this.currentDetectedGesture && gesture.value === this.currentGestureValue) {
             this.stableGestureCount++;
         } else {
-            this.currentDetectedFingers = fingerCount;
+            this.currentDetectedGesture = gesture.type;
+            this.currentGestureValue = gesture.value;
             this.stableGestureCount = 0;
         }
         
-        // Update display immediately
-        this.updateGestureDisplay(fingerCount);
+        // Update display
+        this.updateGestureDisplay(gesture.value, gesture.type);
         
-        // Require stable gesture for selection
-        if (this.stableGestureCount >= 15 && fingerCount > 0 && fingerCount <= 5) {
-            if (now - this.lastGestureTime > 2000) { // 2 second cooldown
-                this.selectOption(fingerCount);
-                this.lastGestureTime = now;
-                this.stableGestureCount = 0;
+        // Process gesture if stable and cooldown has passed
+        if (this.stableGestureCount >= 15) { // Require 15 frames of stability
+            if (now - this.lastGestureTime > 2000) { // 2 second cooldown between actions
+                if (gesture.type === 'select') {
+                    this.selectOption(gesture.value);
+                    this.lastGestureTime = now;
+                } else if (gesture.type === 'back') {
+                    this.previousStep();
+                    this.lastGestureTime = now;
+                }
+                // Neutral gesture does nothing
             }
         }
     }
 
-    updateGestureDisplay(count) {
+    updateGestureDisplay(value, type) {
         const gestureIndicator = document.getElementById('gestureIndicator');
         const gestureCount = document.getElementById('gestureCount');
         
-        gestureCount.textContent = count;
-        
-        if (count > 0 && count <= 5) {
-            gestureIndicator.style.background = 'rgba(76, 175, 80, 0.9)';
-        } else {
-            gestureIndicator.style.background = 'rgba(0, 0, 0, 0.8)';
+        if (type === 'select') {
+            gestureCount.textContent = value;
+            gestureIndicator.style.background = 'rgba(76, 175, 80, 0.9)'; // Green for selection
+            gestureIndicator.querySelector('i').className = 'fas fa-hand-paper';
+        } else if (type === 'back') {
+            gestureCount.textContent = '↩️'; // Or some other indicator for back
+            gestureIndicator.style.background = 'rgba(255, 165, 0, 0.9)'; // Orange for back
+            gestureIndicator.querySelector('i').className = 'fas fa-hand-point-down';
+        } else { // Neutral
+            gestureCount.textContent = '✊'; // Fist icon
+            gestureIndicator.style.background = 'rgba(0, 0, 0, 0.8)'; // Default background
+            gestureIndicator.querySelector('i').className = 'fas fa-fist-raised';
         }
     }
 
@@ -333,6 +382,14 @@ class CoffeeOrderApp {
             setTimeout(() => {
                 this.nextStep();
             }, 1000);
+        }
+    }
+
+    previousStep() {
+        if (this.currentStep > 0) {
+            this.currentStep--;
+            this.updateStepDisplay();
+            this.updateProgressBar();
         }
     }
 
@@ -509,7 +566,7 @@ class CoffeeOrderApp {
             this.updateDebugStatus('Pedido salvo com sucesso!');
             
         } catch (error) {
-            console.error('Erro ao salvar pedido:', error);
+            console.error('Erro ao processar pedido:', error);
             this.updateDebugStatus('Erro ao salvar pedido no servidor');
         }
     }
