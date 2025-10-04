@@ -320,16 +320,14 @@ class CoffeeOrderApp {
         }
 
         // 2. Number Gestures (1-5)
-        // The index finger must be extended for any number selection.
-        if (extendedFingers.index) {
-            // Gesture for 5: all fingers are extended.
-            if (extendedCount === 5) {
-                return { type: 'select', value: 5 };
-            }
-            // Gestures for 1-4: thumb must not be extended.
-            if (!extendedFingers.thumb && nonThumbExtendedCount > 0 && nonThumbExtendedCount <= 4) {
-                return { type: 'select', value: nonThumbExtendedCount };
-            }
+        // Gesture for 5: all fingers are extended.
+        if (extendedCount === 5) {
+            return { type: 'select', value: 5 };
+        }
+        
+        // Gestures for 1-4: thumb must not be extended.
+        if (!extendedFingers.thumb && nonThumbExtendedCount > 0 && nonThumbExtendedCount <= 4) {
+            return { type: 'select', value: nonThumbExtendedCount };
         }
 
         // 3. Neutral Gesture (Fist)
