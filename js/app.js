@@ -287,7 +287,7 @@ class CoffeeOrderApp {
                 const cmc = landmarks[1]; // The thumb's base joint
                 const tipDist = Math.hypot(tip.x - cmc.x, tip.y - cmc.y);
                 const mcpDist = Math.hypot(mcp.x - cmc.x, mcp.y - cmc.y);
-                return tipDist > mcpDist;
+                return tipDist > mcpDist * 1.2;
             } else {
                 // For other fingers, check if the tip is above the pip and mcp
                 return tip.y < pip.y && tip.y < mcp.y;
@@ -310,6 +310,9 @@ class CoffeeOrderApp {
 
         // --- Strict Index Finger Rule --- 
         // // Assume extendedFingers, extendedCount, and nonThumbExtendedCount are pre-calculated correctly
+        console.log(
+            `Thumb:${extendedFingers.thumb}, Index:${extendedFingers.index}, Mid:${extendedFingers.middle}, Ring:${extendedFingers.ring}, Pinky:${extendedFingers.pinky} --- Total:${extendedCount}`
+        );
 
         // 1. Thumbs Down (Back Gesture)
         const thumbTip = landmarks[fingerTips.thumb];
