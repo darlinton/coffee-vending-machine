@@ -284,17 +284,23 @@ class CoffeeOrderApp {
             const mcp = landmarks[fingerMcps[fingerName]];
 
             if (fingerName === 'thumb') {
-                const cmc = landmarks[1]; // The thumb's base joint
-                const mcp = landmarks[2]; // The thumb's middle knuckle
-                const tip = landmarks[4]; // The thumb's tip
+                // A more robust check: Is the thumb tip farther from the palm than its knuckle?
+                // We use the index finger's base knuckle as a stable anchor point for the palm.
+                const indexFingerMcp = landmarks[5];
+                const tip = landmarks[4];
+                const mcp = landmarks[2];
 
-                const tipDist = Math.hypot(tip.x - cmc.x, tip.y - cmc.y);
-                const mcpDist = Math.hypot(mcp.x - cmc.x, mcp.y - cmc.y);
+                // Distance from the thumb tip to the palm (index finger base)
+                const tipToPalmDist = Math.hypot(tip.x - indexFingerMcp.x, tip.y - indexFingerMcp.y);
 
-                // LOG THE VALUES TO THE CONSOLE
-                console.log(`Thumb distances -- Tip: ${tipDist.toFixed(4)}, Knuckle: ${mcpDist.toFixed(4)}`);
+                // Distance from the thumb knuckle to the palm (index finger base)
+                const mcpToPalmDist = Math.hypot(mcp.x - indexFingerMcp.x, mcp.y - indexFingerMcp.y);
 
-                return tipDist > mcpDist * 1.15;
+                                // LOG THE VALUES TO THE CONSOLE
+                console.log(`Thumb distances -- tipToPalmDist: ${tipToPalmDist}, mcpToPalmDist: ${mcpToPalmDist}`);
+
+                // If the tip is farther from the palm than the knuckle, the thumb is extended.
+                return tipToPalmDist > mcpToPalmDist;
             } else {
                 // For other fingers, check if the tip is above the pip and mcp
                 return tip.y < pip.y && tip.y < mcp.y;
