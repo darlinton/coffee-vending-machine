@@ -323,9 +323,10 @@ class CoffeeOrderApp {
 
         // --- Strict Index Finger Rule --- 
         // // Assume extendedFingers, extendedCount, and nonThumbExtendedCount are pre-calculated correctly
+        /*
         console.log(
             `Thumb:${extendedFingers.thumb}, Index:${extendedFingers.index}, Mid:${extendedFingers.middle}, Ring:${extendedFingers.ring}, Pinky:${extendedFingers.pinky} --- Total:${extendedCount}`
-        );
+        ); */
 
         // 1. Thumbs Down (Back Gesture)
         const thumbTip = landmarks[fingerTips.thumb];
