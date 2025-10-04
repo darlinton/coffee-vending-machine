@@ -319,26 +319,17 @@ class CoffeeOrderApp {
             return { type: 'back', value: 0 };
         }
 
-        // 2. Number Gestures (1-5)
-        // The index finger must be extended for any number selection.
-        if (extendedFingers.index) {
-            // Gesture for 5: all fingers are extended.
-            if (extendedCount === 5) {
-                return { type: 'select', value: 5 };
-            }
-            // Gestures for 1-4: thumb must not be extended.
-            if (!extendedFingers.thumb) {
-                return { type: 'select', value: nonThumbExtendedCount };
-            }
+        // 2. Gesture for 5
+        if (extendedCount === 5) {
+            return { type: 'select', value: 5 };
         }
 
-        // 3. Neutral Gesture (Fist)
-        // A fist (no fingers extended) is neutral.
-        if (extendedCount === 0) {
-            return { type: 'neutral', value: 0 };
+        // 3. Gestures for 1-4
+        if (extendedFingers.index && !extendedFingers.thumb) {
+            return { type: 'select', value: nonThumbExtendedCount };
         }
 
-        // Any other combination is considered neutral to avoid incorrect selections.
+        // 4. Neutral Gesture (Fist or other)
         return { type: 'neutral', value: 0 };
     }
 
