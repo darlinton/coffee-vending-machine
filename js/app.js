@@ -264,25 +264,20 @@ class CoffeeOrderApp {
         const indexMcp = landmarks[5]; // Metacarpophalangeal joint of index finger
 
         let extendedFingers = 0;
-        let isThumbExtendedUp = false;
-        let isThumbExtendedOut = false;
-        let isThumbCurled = false;
+        let isThumbExtended = false;
+        let isThumbDown = false;
 
-        // Check if thumb is extended upwards (for "five" or "thumbs up")
-        // Thumb tip (4) is significantly above MCP (2)
-        if (thumbTip.y < thumbMcp.y && Math.abs(thumbTip.x - thumbMcp.x) < 0.1) { // Vertical extension
-            isThumbExtendedUp = true;
-        }
-        // Check if thumb is extended outwards (for "five" or "thumbs up")
-        // Thumb tip (4) is significantly to the side of MCP (2)
-        if (Math.abs(thumbTip.x - thumbMcp.x) > 0.08 && thumbTip.y < thumbMcp.y + 0.05) { // Horizontal extension
-             isThumbExtendedOut = true;
+        // Check if thumb is extended (for "select" gestures)
+        // Thumb tip (4) is significantly above its MCP (2) or extended outwards
+        if (thumbTip.y < thumbMcp.y || Math.abs(thumbTip.x - thumbMcp.x) > 0.08) {
+            isThumbExtended = true;
         }
 
-        // Check if thumb is curled (for "thumbs down" or closed fist)
-        // Thumb tip (4) is below its IP (3) and close to the palm
-        if (thumbTip.y > thumbIp.y && thumbTip.x > thumbIp.x && Math.abs(thumbTip.x - landmarks[0].x) < 0.1) {
-            isThumbCurled = true;
+        // Check if thumb is pointing down (for "back" gesture)
+        // Thumb tip (4) is below its MCP (2) and below the index finger's MCP (5)
+        // Also, ensure the thumb is relatively straight down, not curled into the palm
+        if (thumbTip.y > thumbMcp.y && thumbTip.y > indexMcp.y + 0.05 && Math.abs(thumbTip.x - thumbMcp.x) < 0.05) {
+            isThumbDown = true;
         }
 
         // Check other fingers extension
@@ -297,14 +292,11 @@ class CoffeeOrderApp {
 
         // --- Gesture Logic ---
         // 1. Selection (1-5 fingers):
-        // If thumb is extended (up or out) AND other fingers are not all curled, count it.
-        // This allows for "five" (thumb + 4 fingers) and "one" (just thumb).
+        // If thumb is extended AND not pointing down, AND other fingers are not all curled, count it.
         let totalExtendedFingers = extendedFingers;
-        if (isThumbExtendedUp || isThumbExtendedOut) {
-            // Ensure thumb is not also curled for a "select" gesture
-            if (!isThumbCurled) {
-                totalExtendedFingers++;
-            }
+        if (isThumbExtended && !isThumbDown) {
+            // Only count thumb if it's not part of a "thumbs down" gesture
+            totalExtendedFingers++;
         }
 
         if (totalExtendedFingers > 0 && totalExtendedFingers <= 5) {
@@ -312,13 +304,17 @@ class CoffeeOrderApp {
         }
 
         // 2. Thumbs Down (Back):
-        // Thumb is curled AND thumb tip is significantly below the index finger's MCP joint (5).
-        // We relax the "allOtherFingersCurled" requirement to make it more robust.
-        if (isThumbCurled && thumbTip.y > indexMcp.y + 0.05) { // Add a threshold for "significantly below"
+        if (isThumbDown) {
             return { type: 'back', value: 0 };
         }
 
-        // 3. Neutral (Closed Fist / No clear gesture): All other cases.
+        // 3. Neutral (Closed Fist / No clear gesture):
+        // If all other fingers are curled AND the thumb is not extended for selection or pointing down.
+        if (allOtherFingersCurled && !isThumbExtended && !isThumbDown) {
+            return { type: 'neutral', value: 0 };
+        }
+        
+        // Default to neutral if no specific gesture is detected
         return { type: 'neutral', value: 0 };
     }
 
@@ -363,7 +359,7 @@ class CoffeeOrderApp {
         } else if (type === 'back') {
             gestureCount.textContent = '↩️'; // Or some other indicator for back
             gestureIndicator.style.background = 'rgba(255, 165, 0, 0.9)'; // Orange for back
-            gestureIndicator.querySelector('i').className = 'fas fa-hand-point-down';
+            gestureIndicator.querySelector('i').className = 'fas fa-thumbs-down';
         } else { // Neutral
             gestureCount.textContent = '✊'; // Fist icon
             gestureIndicator.style.background = 'rgba(0, 0, 0, 0.8)'; // Default background
