@@ -264,48 +264,61 @@ class CoffeeOrderApp {
         const indexMcp = landmarks[5]; // Metacarpophalangeal joint of index finger
 
         let extendedFingers = 0;
-        let isThumbExtended = false;
+        let isThumbExtendedUp = false;
+        let isThumbExtendedOut = false;
         let isThumbCurled = false;
 
-        // Check if thumb is extended (pointing up/out)
-        // A simple check: if thumb tip is significantly higher than its MCP joint
-        if (thumbTip.y < thumbMcp.y && Math.abs(thumbTip.x - thumbMcp.x) > 0.05) { // Check horizontal spread too
-            isThumbExtended = true;
+        // Check if thumb is extended upwards (for "five" or "thumbs up")
+        // Thumb tip (4) is significantly above MCP (2)
+        if (thumbTip.y < thumbMcp.y && Math.abs(thumbTip.x - thumbMcp.x) < 0.1) { // Vertical extension
+            isThumbExtendedUp = true;
         }
-        // Check if thumb is curled (pointing down/in)
-        // If thumb tip is significantly lower than its MCP joint
-        if (thumbTip.y > thumbMcp.y && Math.abs(thumbTip.x - thumbMcp.x) < 0.05) { // Check horizontal closeness
+        // Check if thumb is extended outwards (for "five" or "thumbs up")
+        // Thumb tip (4) is significantly to the side of MCP (2)
+        if (Math.abs(thumbTip.x - thumbMcp.x) > 0.08 && thumbTip.y < thumbMcp.y + 0.05) { // Horizontal extension
+             isThumbExtendedOut = true;
+        }
+
+        // Check if thumb is curled (for "thumbs down" or closed fist)
+        // Thumb tip (4) is below its IP (3) and close to the palm
+        if (thumbTip.y > thumbIp.y && thumbTip.x > thumbIp.x && Math.abs(thumbTip.x - landmarks[0].x) < 0.1) {
             isThumbCurled = true;
         }
 
-
         // Check other fingers extension
-        let allOtherFingersExtended = true;
         let allOtherFingersCurled = true;
         for (let i = 0; i < fingerTips.length; i++) {
             // Finger is extended if tip is significantly higher than PIP
             if (landmarks[fingerTips[i]].y < landmarks[fingerPips[i]].y) {
                 extendedFingers++;
                 allOtherFingersCurled = false;
-            } else {
-                allOtherFingersExtended = false;
             }
         }
 
         // --- Gesture Logic ---
-        // 1. Selection (1-5 fingers): Thumb is not curled, and 1-5 fingers are extended.
-        if (!isThumbCurled && extendedFingers > 0 && extendedFingers <= 5) {
-            return { type: 'select', value: extendedFingers };
+        // 1. Selection (1-5 fingers):
+        // If thumb is extended (up or out) AND other fingers are not all curled, count it.
+        // This allows for "five" (thumb + 4 fingers) and "one" (just thumb).
+        let totalExtendedFingers = extendedFingers;
+        if (isThumbExtendedUp || isThumbExtendedOut) {
+            // Ensure thumb is not also curled for a "select" gesture
+            if (!isThumbCurled) {
+                totalExtendedFingers++;
+            }
         }
-        // 2. Thumbs Down (Back): Thumb is curled, other fingers are curled, and thumb tip is below index MCP.
-        // This is a more robust check for a "thumbs down" gesture.
-        // The thumb tip (4) should be below the index finger's MCP joint (5)
-        // And the other fingers should be curled.
-        if (thumbTip.y > indexMcp.y && allOtherFingersCurled && isThumbCurled) {
+
+        if (totalExtendedFingers > 0 && totalExtendedFingers <= 5) {
+            return { type: 'select', value: totalExtendedFingers };
+        }
+
+        // 2. Thumbs Down (Back):
+        // Thumb is curled AND thumb tip is significantly below the index finger's MCP joint (5).
+        // We relax the "allOtherFingersCurled" requirement to make it more robust.
+        if (isThumbCurled && thumbTip.y > indexMcp.y + 0.05) { // Add a threshold for "significantly below"
             return { type: 'back', value: 0 };
         }
+
         // 3. Neutral (Closed Fist / No clear gesture): All other cases.
-        // This includes a closed fist (all fingers curled, thumb curled) or no clear gesture.
         return { type: 'neutral', value: 0 };
     }
 
