@@ -284,10 +284,7 @@ class CoffeeOrderApp {
             const mcp = landmarks[fingerMcps[fingerName]];
 
             if (fingerName === 'thumb') {
-                // For the thumb, check if the tip is further from the wrist than the pip
                 const cmc = landmarks[1]; // The thumb's base joint
-                
-                // Calculate distance using the cleaner Math.hypot() function
                 const tipDist = Math.hypot(tip.x - cmc.x, tip.y - cmc.y);
                 const mcpDist = Math.hypot(mcp.x - cmc.x, mcp.y - cmc.y);
                 return tipDist > mcpDist;
@@ -311,11 +308,15 @@ class CoffeeOrderApp {
 
         // --- Gesture Logic ---
 
+        // --- Strict Index Finger Rule --- 
+        // // Assume extendedFingers, extendedCount, and nonThumbExtendedCount are pre-calculated correctly
+
         // 1. Thumbs Down (Back Gesture)
         const thumbTip = landmarks[fingerTips.thumb];
         const thumbMcp = landmarks[fingerMcps.thumb];
         const indexMcp = landmarks[fingerMcps.index];
         const isThumbPointingDown = thumbTip.y > thumbMcp.y && thumbTip.y > indexMcp.y;
+        // const isThumbPointingDown = thumbTip.y > thumbMcp.y;
 
         if (isThumbPointingDown && nonThumbExtendedCount === 0) {
             return { type: 'back', value: 0 };
@@ -326,7 +327,9 @@ class CoffeeOrderApp {
             return { type: 'select', value: 5 };
         }
 
-        // 3. Gestures for 1-4
+        // 3. Counting Gestures (1-4) with STRICT INDEX FINGER RULE
+        // This requires the index finger to be up for any count between 1 and 4.
+        // The thumb must also be down.
         if (extendedFingers.index && !extendedFingers.thumb) {
             return { type: 'select', value: nonThumbExtendedCount };
         }
